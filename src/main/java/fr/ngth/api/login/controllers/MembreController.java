@@ -32,7 +32,6 @@ public class MembreController {
 	@Autowired
 	AuthenticationUser authenticationUser;
 
-	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@GetMapping
 	public List<Membre> getAllMembre() {
 		return service.getAllMembre();
@@ -66,6 +65,12 @@ public class MembreController {
 	public ResponseEntity<?> deleteUser(@PathVariable("username") String username) {
 		return service.deleteUser(username);
 	}
+	
+	@PreAuthorize("#id == authentication.principal.id or hasRole('ROLE_ADMIN')")
+	@PutMapping("/updaterole/{id}")
+	public ResponseEntity<?> updateRoleMembre(@PathVariable("id") long id,@RequestBody String roleChange) {
+		return service.updateRoleMembre(id, roleChange);
+	}
 
 	@PreAuthorize("#id == authentication.principal.id or hasRole('ROLE_ADMIN')")
 	@PutMapping("/{id}")
@@ -77,6 +82,18 @@ public class MembreController {
 	@PutMapping("/password/{id}")
 	public ResponseEntity<?> updateMembrePassword(@PathVariable("id") long id, @RequestBody SignUpForm updateRequest) {
 		return service.updateMembrePassword(id, updateRequest);
+	}
+	
+	@PreAuthorize("#id == authentication.principal.id or hasRole('ROLE_ADMIN')")
+	@PutMapping("/updatejob/{id}")
+	public ResponseEntity<?> updateMembreJob(@PathVariable("id") long id, @RequestBody SignUpForm updateRequest) {
+		return service.updateMembreJob(id, updateRequest);
+	}
+	
+	@PreAuthorize("#id == authentication.principal.id or hasRole('ROLE_ADMIN')")
+	@PutMapping("/updatecharacter/{id}")
+	public ResponseEntity<?> updateMembreCharacter(@PathVariable("id") long id, @RequestBody SignUpForm updateRequest) {
+		return service.updateMembreCharacter(id, updateRequest);
 	}
 
 }

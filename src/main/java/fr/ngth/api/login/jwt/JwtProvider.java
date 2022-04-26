@@ -31,9 +31,12 @@ public class JwtProvider {
 
 		UserPrinciple userPrincipal = (UserPrinciple) authentication.getPrincipal();
 
-		return Jwts.builder().setSubject((userPrincipal.getUsername())).setIssuedAt(new Date())
+		return Jwts.builder()
+				.setSubject((userPrincipal.getUsername()))
+				.setIssuedAt(new Date())
 				.setExpiration(new Date((new Date()).getTime() + jwtExpiration * 1000))
-				.signWith(SignatureAlgorithm.HS512, jwtSecret).compact();
+				.signWith(SignatureAlgorithm.HS512, jwtSecret)
+				.compact();
 	}
 
 	public boolean validateJwtToken(String authToken) {
@@ -56,6 +59,9 @@ public class JwtProvider {
 	}
 
 	public String getUserNameFromJwtToken(String token) {
-		return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
+		return Jwts.parser()
+					.setSigningKey(jwtSecret)
+					.parseClaimsJws(token)
+					.getBody().getSubject();
 	}
 }

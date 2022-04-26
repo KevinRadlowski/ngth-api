@@ -1,6 +1,7 @@
 package fr.ngth.api.login.services;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -51,7 +52,7 @@ public class MembreServiceImpl {
 		}
 		return membres;
 	}
-	
+
 	public Membre findByEmail(String email) {
 		return membreRepository.findByEmail(email);
 	}
@@ -99,12 +100,14 @@ public class MembreServiceImpl {
 
 		// Creating user's account
 		Membre user = new Membre(signUpRequest.getPseudo(), signUpRequest.getUsername(), signUpRequest.getEmail(),
-				encoder.encode(signUpRequest.getPassword()), signUpRequest.getClasse(), signUpRequest.getSpecialisation(), signUpRequest.getRace(),
-				signUpRequest.getPremierMetier(), signUpRequest.getNiveauPremierMetier(), signUpRequest.getSecondMetier(), signUpRequest.getNiveauSecondMetier(), signUpRequest.getLevel());
+				encoder.encode(signUpRequest.getPassword()), signUpRequest.getClasse(),
+				signUpRequest.getSpecialisation(), signUpRequest.getRace(), signUpRequest.getPremierMetier(),
+				signUpRequest.getNiveauPremierMetier(), signUpRequest.getSecondMetier(),
+				signUpRequest.getNiveauSecondMetier(), signUpRequest.getLevel());
 
-		Set<String> strRoles = new HashSet<String>();
+		Collection<String> strRoles = new HashSet<String>();
 		strRoles.add("user");
-		Set<Role> roles = new HashSet<>();
+		Collection<Role> roles = new HashSet<>();
 
 		strRoles.forEach(role -> {
 			switch (role) {
@@ -126,6 +129,52 @@ public class MembreServiceImpl {
 
 	}
 
+	public ResponseEntity<?> updateRoleMembre(@PathVariable("id") long id, @RequestBody String roleChange) {
+		Optional<User> membreData = userRepository.findById(id);
+
+		if (membreData.isPresent()) {
+			Membre _membre = (Membre) membreData.get();
+			Collection<Role> roles = new HashSet<>();
+
+			switch (roleChange) {
+			case "user":
+				Role userRole = roleRepository.findByName(RoleName.ROLE_USER).orElseThrow(
+						() -> new RuntimeException("Erreur! -> Cause: Le rôle de l'utilisateur n'a pas été trouvé."));
+				roles.add(userRole);
+
+				break;
+			case "member":
+				Role membreRole = roleRepository.findByName(RoleName.ROLE_MEMBRE).orElseThrow(
+						() -> new RuntimeException("Erreur! -> Cause: Le rôle de l'utilisateur n'a pas été trouvé."));
+				roles.add(membreRole);
+
+				break;
+			case "officer":
+				Role officierRole = roleRepository.findByName(RoleName.ROLE_OFFICIER).orElseThrow(
+						() -> new RuntimeException("Erreur! -> Cause: Le rôle de l'utilisateur n'a pas été trouvé."));
+				roles.add(officierRole);
+
+				break;
+			case "gamemaster":
+				Role gmRole = roleRepository.findByName(RoleName.ROLE_ADMIN).orElseThrow(
+						() -> new RuntimeException("Erreur! -> Cause: Le rôle de l'utilisateur n'a pas été trouvé."));
+				roles.add(gmRole);
+
+				break;
+			default:
+				break;
+			}
+
+			_membre.setRoles(roles);
+			userRepository.save(_membre);
+
+			return new ResponseEntity<>(HttpStatus.OK);
+		} else {
+
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
+
 	public ResponseEntity<?> updateMembre(@PathVariable("id") long id, @RequestBody SignUpForm updateRequest) {
 
 		Optional<User> membreData = userRepository.findById(id);
@@ -137,6 +186,8 @@ public class MembreServiceImpl {
 			_membre.setRace(updateRequest.getRace());
 			_membre.setPremierMetier(updateRequest.getPremierMetier());
 			_membre.setSecondMetier(updateRequest.getSecondMetier());
+			_membre.setNiveauPremierMetier(updateRequest.getNiveauPremierMetier());
+			_membre.setNiveauSecondMetier(updateRequest.getNiveauSecondMetier());
 			_membre.setLevel(updateRequest.getLevel());
 			_membre.setEmail(updateRequest.getEmail());
 			_membre.setUsername(updateRequest.getUsername());
@@ -157,6 +208,42 @@ public class MembreServiceImpl {
 			Membre _membre = (Membre) membreData.get();
 			_membre.setPassword(encoder.encode(updateRequest.getPassword()));
 
+			userRepository.save(_membre);
+
+			return new ResponseEntity<>(HttpStatus.OK);
+		} else {
+
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
+	
+	public ResponseEntity<?> updateMembreJob(@PathVariable("id") long id, @RequestBody SignUpForm updateRequest) {
+
+		Optional<User> membreData = userRepository.findById(id);
+
+		if (membreData.isPresent()) {
+			Membre _membre = (Membre) membreData.get();
+			_membre.setPremierMetier(updateRequest.getPremierMetier());
+			_membre.setSecondMetier(updateRequest.getSecondMetier());
+			_membre.setNiveauPremierMetier(updateRequest.getNiveauPremierMetier());
+			_membre.setNiveauSecondMetier(updateRequest.getNiveauSecondMetier());
+			userRepository.save(_membre);
+
+			return new ResponseEntity<>(HttpStatus.OK);
+		} else {
+
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
+	
+	public ResponseEntity<?> updateMembreCharacter(@PathVariable("id") long id, @RequestBody SignUpForm updateRequest) {
+
+		Optional<User> membreData = userRepository.findById(id);
+
+		if (membreData.isPresent()) {
+			Membre _membre = (Membre) membreData.get();
+			_membre.setPseudo(updateRequest.getPseudo());
+			_membre.setLevel(updateRequest.getLevel());
 			userRepository.save(_membre);
 
 			return new ResponseEntity<>(HttpStatus.OK);
