@@ -1,7 +1,17 @@
 package fr.ngth.api.login.models;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.OneToMany;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import fr.ngth.api.panelmembre.models.Patron;
+import fr.ngth.api.panelmembre.models.Talent;
 
 @Entity
 public class Membre extends User {
@@ -26,12 +36,20 @@ public class Membre extends User {
 
 	@Column(name = "secondMetier")
 	private String secondMetier;
-	
+
 	@Column(name= "niveauSecondMetier")
 	private Long niveauSecondMetier;
 
 	@Column(name = "level")
 	private Long level;
+	
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "membre")
+	@JsonIgnore
+	private Set<Patron> patrons;
+	
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "membre")
+	@JsonIgnore
+	private Set<Talent> talents;
 	
 	public Membre() {
 	}
@@ -48,6 +66,9 @@ public class Membre extends User {
 		this.secondMetier = secondMetier;
 		this.niveauSecondMetier = niveauSecondMetier;
 		this.level = level;
+		this.patrons = new HashSet<Patron>();
+		this.talents = new HashSet<Talent>();
+		
 	}
 
 	public Membre(String pseudo, Long id, String username, String email, String password, String classe, String specialisation, String race,
@@ -62,6 +83,8 @@ public class Membre extends User {
 		this.secondMetier = secondMetier;
 		this.niveauSecondMetier = niveauSecondMetier;
 		this.level = level;
+		this.patrons = new HashSet<Patron>();
+		this.talents = new HashSet<Talent>();
 	}
 
 	public Long getNiveauPremierMetier() {
@@ -136,4 +159,25 @@ public class Membre extends User {
 	public void setLevel(Long level) {
 		this.level = level;
 	}
+	
+	public Set<Patron> getPatrons() {
+		return patrons;
+	}
+
+	public void setPatrons(Set<Patron> patrons) {
+		this.patrons = patrons;
+	}
+
+	public void setPatron(Patron patron) {
+		this.patrons.add(patron);
+	}
+	
+	public Set<Talent> getTalents() {
+		return talents;
+	}
+
+	public void setTalents(Set<Talent> talents) {
+		this.talents = talents;
+	}
 }
+
